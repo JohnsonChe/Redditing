@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/titleText"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/authorText"
+        android:layout_toEndOf="@+id/entryImage" />
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:id="@+id/entryImage"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentRight="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/authorText"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/scoreNumText"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Small Text"
+        android:id="@+id/scoreNumText"
+        android:layout_alignBottom="@+id/authorText"
+        android:layout_alignStart="@+id/titleText"
+        android:layout_toEndOf="@id/entryImage" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/subredditText"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/authorText"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp" />
+
+</RelativeLayout>
