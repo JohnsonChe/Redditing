@@ -31,10 +31,12 @@ public class EntryAdapter extends ArrayAdapter<Entry> {
 
     @Override
     public View getView(int position,View convertView, ViewGroup parent){
+
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.entry_detail, parent, false);
 
         Entry entry = entryList.get(position);
+        if (position == 0) return view;
 //
 //        if(position == entryList.size() -1) {
 //            loadMoreData();
