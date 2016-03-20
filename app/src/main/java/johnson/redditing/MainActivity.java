@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean newSubreddit = false;
     public boolean updatedList = false;
+
+    public boolean appendFlag = false;
+    public boolean subredditFlag = false;
+
     EntryAdapter adapter;
     EditText searchBar;
     TextView subTitle;
@@ -67,9 +71,10 @@ public class MainActivity extends AppCompatActivity {
         searchBar.setVisibility(View.GONE);
         subTitle = (TextView)findViewById(R.id.subTitle);
         subTitle.setText(SUBREDDIT_TITLE);
+        searchBar.setText("");
 
         listView = (ListView)findViewById(R.id.list);
-        requestData();
+        requestData(url + JSON);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             listView.setNestedScrollingEnabled(true);
@@ -91,13 +96,8 @@ public class MainActivity extends AppCompatActivity {
                         entryTemp = entryList.get(entryList.size() - 1);
                         AFTER = entryTemp.getAfter();
                         SUBREDDIT_TITLE = entryTemp.getSubreddit();
-
                         updatedList = true;
-
-                        if(newSubreddit && SUBREDDIT_TITLE != "Frontpage")
-                            requestData(SUBREDDIT + SUBREDDIT_TITLE,AFTER);
-                        else
-                            requestData(AFTER);
+                        URLRequestData();
                     }
                 }
                 final int currentFirstVisibleItem = listView.getFirstVisiblePosition();
@@ -105,9 +105,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if (currentFirstVisibleItem > mLastFirstVisibleItem) {
                     //Hides ActionBar
+                    appendFlag = true;
                     getSupportActionBar().hide();
                 } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
                     //Shows ActionBar
+                    appendFlag = false;
                     getSupportActionBar().show();
                 }
                 mLastFirstVisibleItem = currentFirstVisibleItem;
@@ -116,18 +118,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public String URLGenerator(String subreddit, String after){
+    public void URLRequestData(){
 
-        if(subreddit != null & after != null) {
-            return "https://www.reddit.com/r/" + subreddit + "/.json/?after=" + after;
-        }else if(after == null){
-                    return "https://www.reddit.com/r/" + subreddit + "/.json";
-                }else if(subreddit == null){
-                            return "https://www.reddit.com/.json/?after=" + after;
-                        }else
-                            return "https://www.reddit.com/.json";
+        String reddit_URL = "https://www.reddit.com";
+        String subreddit_exten = "/r/";
+        String JSON_Type = "/.json";
+        String URL_AFTER_EXTENSION = "?after=";
 
-
+        if(appendFlag && subredditFlag)
+            requestData(reddit_URL + subreddit_exten + SUBREDDIT_TITLE
+                            + JSON_Type + URL_AFTER_EXTENSION + AFTER);
+        else if(subredditFlag && !appendFlag)
+                requestData(reddit_URL + subreddit_exten + SUBREDDIT_TITLE + JSON_Type);
+            else if(appendFlag && !subredditFlag)
+                    requestData(reddit_URL + JSON_Type + URL_AFTER_EXTENSION + AFTER);
+                else
+                    requestData(reddit_URL + JSON_Type);
     }
 
 
@@ -145,15 +151,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_get_data) {
             if (isOnline()) {
-                searchBar = (EditText)findViewById(R.id.searchBar);
-                final String subreddit = searchBar.getText().toString();
 
+
+                searchBar = (EditText)findViewById(R.id.searchBar);
                 searchBar.setVisibility(View.GONE);
                 subTitle.setVisibility(View.VISIBLE);
-                searchBar.setText("");
 
+                final String subreddit = searchBar.getText().toString();
 
-                requestData(SUBREDDIT,subreddit);
+                if(subreddit.equals("") && SUBREDDIT_TITLE == "Frontpage"){
+                        URLRequestData();
+                }
+                else {
+                    subredditFlag = true;
+                    SUBREDDIT_TITLE = subreddit;
+                    searchBar.setText("");
+                    URLRequestData();
+                }
             } else {
                 Toast.makeText(this, "Network isn't available", Toast.LENGTH_SHORT).show();
 
@@ -188,33 +202,19 @@ public class MainActivity extends AppCompatActivity {
         searchBar.setVisibility(View.GONE);
         subTitle.setVisibility(View.VISIBLE);
         newSubreddit = false;
-        requestData();
+        //requestData();
     }
 
 
-    private void requestData(){
+    private void requestData(String website){
        //Frontpage
         MyTask task = new MyTask();
-        task.execute(url + JSON);
+        task.execute(website);
     }
 
-    public void requestData(String after){
-        //Request next page
-        MyTask task = new MyTask();
-        task.execute(url + JSON + PRE_AFTER_PARAMETERS + after);
-    }
 
-    private void requestData(String uri, String subredditName){
-        //Specific Subreddit
-        MyTask task = new MyTask();
 
-        if(newSubreddit && SUBREDDIT_TITLE != "Frontpage"){
-            task.execute(uri + JSON + PRE_AFTER_PARAMETERS + AFTER);
-        }else{
-            task.execute(uri + subredditName + JSON);
-        }
 
-    }
 
     protected boolean isOnline(){
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -252,22 +252,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<Entry> doInBackground(String... params) {
             String content = HttpManager.getData(params[0]);
-            if(entryList == null) {
-                //entryList.add(entry);
-                //entryList.addAll(1,EntryJSONParser.parseFeed(content));
-                entryList = EntryJSONParser.parseFeed(content);
-            }
-            else{
-                if(SUBREDDIT_TITLE == "Frontpage") {
-                    appendList = EntryJSONParser.parseFeed(content);
-                }
-                else{
-                    SUBREDDIT_TITLE = entryList.get(0).getSubreddit().toString();
-                    appendList = EntryJSONParser.parseFeed(content);
 
-                }
-                return appendList;
-            }
+            entryList = EntryJSONParser.parseFeed(content);
+
             return entryList;
         }
 

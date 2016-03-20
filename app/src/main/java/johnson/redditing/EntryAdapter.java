@@ -22,11 +22,13 @@ public class EntryAdapter extends ArrayAdapter<Entry> {
 
     private Context context;
     private List<Entry> entryList;
+    private boolean firstViewDisabled = false;
 
     public EntryAdapter(Context context, int resource, List<Entry> objects) {
         super(context, resource, objects);
         this.context = context;
         this.entryList = objects;
+        entryList.add(0,new Entry());
     }
 
     @Override
@@ -35,8 +37,12 @@ public class EntryAdapter extends ArrayAdapter<Entry> {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.entry_detail, parent, false);
 
+//        if (!firstViewDisabled && position == 0){
+//            firstViewDisabled = true;
+//            return view;
+//        }
+
         Entry entry = entryList.get(position);
-        if (position == 0) return view;
 //
 //        if(position == entryList.size() -1) {
 //            loadMoreData();
@@ -76,10 +82,10 @@ public class EntryAdapter extends ArrayAdapter<Entry> {
         return (position == entryList.size() - 1);
     }
 
-    private void loadMoreData(){
-        MainActivity main = new MainActivity();
-        main.requestData(MainActivity.AFTER);
-    }
+//    private void loadMoreData(){
+//        MainActivity main = new MainActivity();
+//        main.requestData(MainActivity.AFTER);
+//    }
 
     class EntryAndView{
         public Entry entry;
