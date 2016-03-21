@@ -28,7 +28,7 @@ public class EntryAdapter extends ArrayAdapter<Entry> {
         super(context, resource, objects);
         this.context = context;
         this.entryList = objects;
-        entryList.add(0,new Entry());
+//        entryList.add(0,new Entry());
     }
 
     @Override

@@ -33,6 +33,7 @@
         android:layout_alignParentTop="false"
         android:layout_alignParentStart="false"
         android:layout_alignParentBottom="false"
-        android:layout_toEndOf="@id/drawerButton" />
+        android:layout_toEndOf="@id/drawerButton"
+        android:singleLine="true"/>
 
 </RelativeLayout>

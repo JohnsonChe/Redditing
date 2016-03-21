@@ -73,6 +73,19 @@ public class MainActivity extends AppCompatActivity {
         subTitle.setText(SUBREDDIT_TITLE);
         searchBar.setText("");
 
+        searchBar.setOnKeyListener(new EditText.OnKeyListener(){
+
+            public boolean onKey(View v, int keyCode, KeyEvent event){
+                if(keyCode == KeyEvent.KEYCODE_ENTER){
+                    if(event.getAction() == KeyEvent.ACTION_UP){
+                        requestDataFromActionBar();
+                    }
+                }
+                return false;
+            }
+        });
+
+
         listView = (ListView)findViewById(R.id.list);
         requestData(url + JSON);
 
@@ -127,14 +140,19 @@ public class MainActivity extends AppCompatActivity {
 
         if(appendFlag && subredditFlag)
             requestData(reddit_URL + subreddit_exten + SUBREDDIT_TITLE
-                            + JSON_Type + URL_AFTER_EXTENSION + AFTER);
-        else if(subredditFlag && !appendFlag)
+                    + JSON_Type + URL_AFTER_EXTENSION + AFTER);
+        else if(subredditFlag && !appendFlag) {
+                setSubredditTitle();
                 requestData(reddit_URL + subreddit_exten + SUBREDDIT_TITLE + JSON_Type);
+
+            }
             else if(appendFlag && !subredditFlag)
                     requestData(reddit_URL + JSON_Type + URL_AFTER_EXTENSION + AFTER);
-                else
+                else {
+                    setSubredditTitle();
                     requestData(reddit_URL + JSON_Type);
-    }
+                }
+        }
 
 
 
@@ -151,39 +169,45 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_get_data) {
             if (isOnline()) {
-
-
-                searchBar = (EditText)findViewById(R.id.searchBar);
-                searchBar.setVisibility(View.GONE);
-                subTitle.setVisibility(View.VISIBLE);
-
-                final String subreddit = searchBar.getText().toString();
-
-                if(subreddit.equals("") && SUBREDDIT_TITLE == "Frontpage"){
-                        URLRequestData();
-                }
-                else {
-                    subredditFlag = true;
-                    SUBREDDIT_TITLE = subreddit;
-                    searchBar.setText("");
-                    URLRequestData();
-                }
+                requestDataFromActionBar();
             } else {
                 Toast.makeText(this, "Network isn't available", Toast.LENGTH_SHORT).show();
 
             }
         }
-//       if(item.getItemId() == R.id.drawerButton){
-//
-//        }
-
         if(item.getItemId() == R.id.searchBar){
             searchBar.setFocusable(true);
             searchBar.requestFocus();
-//
         }
         return false;
     }
+
+    public void requestDataFromActionBar(){
+        searchBar = (EditText)findViewById(R.id.searchBar);
+        searchBar.setVisibility(View.GONE);
+        subTitle.setVisibility(View.VISIBLE);
+
+        final String subreddit = searchBar.getText().toString();
+
+        if(subreddit.equals("") && SUBREDDIT_TITLE == "Frontpage"){
+            URLRequestData();
+        }
+        else {
+            subredditFlag = true;
+
+            if(subreddit.equals("")){
+                URLRequestData();
+            }
+            else {
+                SUBREDDIT_TITLE = subreddit;
+                searchBar.setText("");
+                URLRequestData();
+            }
+        }
+    }
+
+
+
 
     public void onSubTextClick(View view){
         subTitle.setVisibility(View.GONE);
@@ -191,12 +215,11 @@ public class MainActivity extends AppCompatActivity {
         adapter.clear();
         entryList = null;
         newSubreddit=true;
-//        SUBREDDIT_TITLE = searchBar.getText().toString();
-//        requestData(SUBREDDIT,SUBREDDIT_TITLE);
     }
 
     @Override
     public void onBackPressed(){
+        adapter.clear();
         adapter.addAll(entryList);
         listView.setAdapter(adapter);
         searchBar.setVisibility(View.GONE);
@@ -212,10 +235,6 @@ public class MainActivity extends AppCompatActivity {
         task.execute(website);
     }
 
-
-
-
-
     protected boolean isOnline(){
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -227,24 +246,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setSubredditTitle(){
+        subTitle.setText(SUBREDDIT_TITLE);
+    }
+
     public void updateDisplay (){
 
-        if( adapter == null) {
+        if( adapter == null || subredditFlag && !appendFlag) {
+            //new list
+            entryList.add(0,new Entry());
             adapter = new EntryAdapter(this,R.layout.entry_detail,entryList);
             listView.setAdapter(adapter);
-            subTitle.setText(SUBREDDIT_TITLE);
+//            subTitle.setText(SUBREDDIT_TITLE);
 
         }else{
-           // adapter.clear();
+           //Appending Data to existing list
             adapter.addAll(entryList);
             adapter.notifyDataSetChanged();
-            subTitle.setText(SUBREDDIT_TITLE);
+//            subTitle.setText(SUBREDDIT_TITLE);
         }
         Log.d(PACKAGE_NAME, "Adapter Set!");
 
     }
-
-
 
 
     private class MyTask extends AsyncTask<String,String,List<Entry>> {
